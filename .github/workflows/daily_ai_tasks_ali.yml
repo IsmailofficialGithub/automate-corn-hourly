@@ -1,0 +1,31 @@
+name: Indian Time AI Productivity Logger
+on:
+  schedule:
+    # 4:30 UTC = 10:00 AM IST
+    # 5:30 UTC = 11:00 AM IST
+    # ...
+    # 12:30 UTC = 6:00 PM IST
+    - cron: '30 4-12 * * *'
+  workflow_dispatch:
+
+
+jobs:
+  plan-and-add:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Dependencies
+        run: npm install
+      - name: Execute Planner
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MY_EMAIL: ${{ secrets.MY_EMAIL }}
+          MY_PASSWORD: ${{ secrets.MY_PASSWORD }}
+          DAILY_GOAL: ${{ vars.DAILY_GOAL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node jobs-corn-ali.js
+
