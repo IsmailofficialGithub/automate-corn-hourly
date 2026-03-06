@@ -1,4 +1,4 @@
-name: Indian Time AI Productivity Logger
+name: Ismail Indian Time AI Productivity Logger
 on:
   schedule:
     # 4:30 UTC = 10:00 AM IST
