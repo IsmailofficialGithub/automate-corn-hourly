@@ -1,0 +1,11 @@
+{
+    "name": "jobs-corn",
+    "version": "1.0.0",
+    "description": "AI Hourly Task Planner",
+    "main": "jobs-corn.js",
+    "type": "module",
+    "dependencies": {
+        "@supabase/supabase-js": "^2.48.1",
+        "openai": "^4.82.0"
+    }
+}
