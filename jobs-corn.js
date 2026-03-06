@@ -7,7 +7,7 @@ import OpenAI from 'openai';
  */
 
 const SUPABASE_URL = "https://lyltstsxwtlfgihdbmux.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5bHRzdHN4d3RsZmdpaGRibXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjI1MjgsImV4cCI6MjA4NjYzODUyOH0.kaw8n8BoeSQH2Os0PvEJRWO2rMd8M90YSVkpfVx0Rp0";
+const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
