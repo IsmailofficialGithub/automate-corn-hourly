@@ -73,9 +73,9 @@ async function run() {
             {
                 role: "user", content: `Daily Goal: "${dailyGoal}". 
         Reporting for Hour #${taskNumber} (Time: ${logHourStart}:00 to ${logHourEnd}:00).
-        
+         and its should be 20 words max
         Provide a specific, result-oriented description of what was accomplished in this EXACT hour.
-        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "highly_productive|productive|moderate|low"}` }
+        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low ,"}` }
         ],
         response_format: { type: "json_object" }
     });

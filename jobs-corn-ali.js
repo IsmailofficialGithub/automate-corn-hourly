@@ -11,7 +11,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const DAILY_GOAL = ' Analyzed requirements for social media database structure and automation workflow. Designed the database schema for storing social media posts and scheduling data. Created tables and fields for posts, platforms, scheduling time, and status tracking. Configured database connections and tested basic data insertion and retrieval. Set up the initial n8n workflow for social media automation. Integrated the database with the n8n workflow to fetch scheduled posts. Implemented automation logic for posting content to different social media platforms. Added error handling and status updates for successful or failed posts. Tested the complete automation workflow and optimized the database queries and workflow performance.'
+const DAILY_GOAL = 'Analyzed requirements for social media database structure and automation workflow. Designed the database schema for storing social media posts and scheduling data. Created tables and fields for posts, platforms, scheduling time, and status tracking. Configured database connections and tested basic data insertion and retrieval. Set up the initial n8n workflow for social media automation. Integrated the database with the n8n workflow to fetch scheduled posts. Implemented automation logic for posting content to different social media platforms. Added error handling and status updates for successful or failed posts. Tested the complete automation workflow and optimized the database queries and workflow performance.'
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -75,7 +75,7 @@ async function run() {
         Reporting for Hour #${taskNumber} (Time: ${logHourStart}:00 to ${logHourEnd}:00).
         
         Provide a specific, result-oriented description of what was accomplished in this EXACT hour.
-        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "highly_productive|productive|moderate|low"} but not like staff 'During the hour from 10:00 to 11:00' ,directly define task , and its should be 20 words max` }
+        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low"} but not like staff 'During the hour from 10:00 to 11:00' ,directly define task , and its should be 20 words max` }
         ],
         response_format: { type: "json_object" }
     });
