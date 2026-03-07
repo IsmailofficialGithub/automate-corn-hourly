@@ -16,17 +16,19 @@ async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     const currentHour = istNow.getHours();
-
-    // We log for the hour that JUST finished.
-    // If it is 11:00 AM, we log for the 10:00 AM - 11:00 AM block.
-    const logHourStart = currentHour - 1;
-    const logHourEnd = currentHour;
+    const currentMinutes = istNow.getMinutes();
+    const dayOfWeek = istNow.getDay(); // 0 is Sunday
     const todayDate = istNow.toISOString().split('T')[0];
 
-    // Workday: 10 AM to 6 PM.
-    // Reporting Window: 11 AM (logs 10-11) to 7 PM (logs 6-7).
-    if (currentHour < 11 || currentHour > 19) {
-        console.log(`Current IST hour (${currentHour}) is outside reporting window (11:00 AM - 7:00 PM).`);
+    // Workday Check: Monday to Saturday ONLY
+    if (dayOfWeek === 0) {
+        console.log("It's Sunday! No automation today.");
+        return;
+    }
+
+    // Workday: 10 AM to 7 PM IST.
+    if (currentHour < 10 || currentHour > 19) {
+        console.log(`Current IST hour (${currentHour}) is outside workday window (10:00 AM - 7:05 PM).`);
         return;
     }
 
@@ -36,19 +38,38 @@ async function run() {
 
     if (!email || !password) throw new Error("Missing credentials.");
 
-    // Task #1 is the 10 AM block, reported at 11 AM.
-    const taskNumber = currentHour - 10;
-
-    console.log(`Reporting for Hour Block: ${logHourStart}:00 to ${logHourEnd}:00 (Task #${taskNumber} of 9)`);
-    console.log(`Goal: "${dailyGoal}"`);
-
-
     // 2. Auth
     const { data: auth, error: authErr } = await supabase.auth.signInWithPassword({ email, password });
     if (authErr) throw authErr;
     const userId = auth.user.id;
 
-    // 3. Find Active Shift for Today
+    // 3. Handle Clock In (10:00 AM)
+    if (currentHour === 10) {
+        console.log("Checking for Clock In...");
+        const { data: existingShift } = await supabase
+            .from('shifts')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('date', todayDate)
+            .maybeSingle();
+
+        if (!existingShift) {
+            const { error: insertErr } = await supabase.from('shifts').insert({
+                user_id: userId,
+                date: todayDate,
+                status: 'active'
+            });
+            if (insertErr) throw insertErr;
+            console.log("✅ Successfully Clocked In at 10:00 AM IST!");
+        } else {
+            console.log("Already clocked in for today.");
+        }
+
+        // At 10 AM, we just clock in. Reporting starts at 11 AM (for the 10-11 block).
+        return;
+    }
+
+    // 4. Find Active Shift for Reporting & Clock Out
     const { data: shift, error: shiftErr } = await supabase
         .from('shifts')
         .select('id')
@@ -63,9 +84,15 @@ async function run() {
         return;
     }
 
+    // 5. Reporting Logic (11 AM to 7 PM IST)
+    const logHourStart = currentHour - 1;
+    const logHourEnd = currentHour;
+    const taskNumber = currentHour - 10;
+
+    console.log(`Reporting for Hour Block: ${logHourStart}:00 to ${logHourEnd}:00 (Task #${taskNumber} of 9)`);
     console.log(`Generating AI productivity log for period ending at ${logHourEnd}:00...`);
 
-    // 4. GPT: Generate Productivity Details
+    // GPT: Generate Productivity Details
     const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -75,16 +102,15 @@ async function run() {
         Reporting for Hour #${taskNumber} (Time: ${logHourStart}:00 to ${logHourEnd}:00).
          and its should be 20 words max
         Provide a specific, result-oriented description of what was accomplished in this EXACT hour.
-        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low ,"}` }
+        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low"}` }
         ],
         response_format: { type: "json_object" }
     });
 
-
     const aiResult = JSON.parse(response.choices[0].message.content);
     console.log("AI Generated Log:", aiResult);
 
-    // 5. Upsert Hourly Productivity Log (Prevents "duplicate key" error)
+    // Upsert Hourly Productivity Log
     const { error: logErr } = await supabase.from('hourly_productivity_logs').upsert({
         user_id: userId,
         shift_id: shift.id,
@@ -99,10 +125,20 @@ async function run() {
         tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 3).join(' ')]
     }, { onConflict: 'user_id, shift_id, hour_start' });
 
-
     if (logErr) throw logErr;
     console.log(`✅ Successfully Logged Hour #${taskNumber}!`);
 
+    // 6. Handle Clock Out (7:00 PM IST)
+    if (currentHour === 19) {
+        console.log("Clocking Out...");
+        const { error: updateErr } = await supabase
+            .from('shifts')
+            .update({ status: 'completed' })
+            .eq('id', shift.id);
+
+        if (updateErr) throw updateErr;
+        console.log("✅ Successfully Clocked Out at 7:00 PM IST!");
+    }
 }
 
 run().catch(err => {

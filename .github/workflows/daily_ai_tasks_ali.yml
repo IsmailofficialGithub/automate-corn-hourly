@@ -1,11 +1,11 @@
 name: ALI Indian Time AI Productivity Logger
 on:
   schedule:
-    # 4:30 UTC = 10:00 AM IST
-    # 5:30 UTC = 11:00 AM IST
+    # 4:30 UTC = 10:00 AM IST (Clock In)
+    # 5:30 UTC = 11:00 AM IST (Report 10-11)
     # ...
-    # 12:30 UTC = 6:00 PM IST
-    - cron: '30 4-12 * * *'
+    # 13:30 UTC = 7:00 PM IST (Report 6-7 & Clock Out)
+    - cron: '30 4-13 * * 1-6'
   workflow_dispatch:
 
 
