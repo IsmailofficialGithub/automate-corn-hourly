@@ -11,7 +11,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const DAILY_GOAL = 'Rnd about socail media automation throught n8n , working to documenation also '
+const DAILY_GOAL = ' Analyzed requirements for social media database structure and automation workflow. Designed the database schema for storing social media posts and scheduling data. Created tables and fields for posts, platforms, scheduling time, and status tracking. Configured database connections and tested basic data insertion and retrieval. Set up the initial n8n workflow for social media automation. Integrated the database with the n8n workflow to fetch scheduled posts. Implemented automation logic for posting content to different social media platforms. Added error handling and status updates for successful or failed posts. Tested the complete automation workflow and optimized the database queries and workflow performance.'
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));

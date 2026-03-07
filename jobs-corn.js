@@ -11,7 +11,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const DAILY_GOAL = 'Fix nginx file and add dns records,and getting information to design website and startworking on landing page from 4,5 hours'
+const DAILY_GOAL = "Reviewed landing page requirements and analyzed the layout structure for header, hero section, and footer.  Set up the initial landing page structure and created base components for header and footer.Implemented the header layout including navigation menu and logo placement.Styled the header section to ensure proper alignment, spacing, and responsiveness.Started developing the hero section layout and added main headline and content structure.Added hero section elements including call-to-action button, text content, and basic styling.Implemented responsive design adjustments for the hero section and header.Developed the footer section including links, contact information, and layout structure.Performed UI refinements and alignment fixes to ensure consistency across header, hero section, and footer."
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
