@@ -90,43 +90,57 @@ async function run() {
     const taskNumber = currentHour - 10;
 
     console.log(`Reporting for Hour Block: ${logHourStart}:00 to ${logHourEnd}:00 (Task #${taskNumber} of 9)`);
-    console.log(`Generating AI productivity log for period ending at ${logHourEnd}:00...`);
 
-    // GPT: Generate Productivity Details
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-            { role: "system", content: "You are a professional employee. You are reporting what you DID in the last 60 minutes." },
-            {
-                role: "user", content: `Daily Goal: "${dailyGoal}". 
-        Reporting for Hour #${taskNumber} (Time: ${logHourStart}:00 to ${logHourEnd}:00).
-         and its should be 20 words max
-        Provide a specific, result-oriented description of what was accomplished in this EXACT hour.
-        Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low"}` }
-        ],
-        response_format: { type: "json_object" }
-    });
+    // Check if log already exists for this hour to avoid redundant AI calls
+    const { data: existingLog } = await supabase
+        .from('hourly_productivity_logs')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('shift_id', shift.id)
+        .eq('hour_start', `${logHourStart}:00`)
+        .maybeSingle();
 
-    const aiResult = JSON.parse(response.choices[0].message.content);
-    console.log("AI Generated Log:", aiResult);
+    if (existingLog) {
+        console.log(`✅ Log already exists for Hour #${taskNumber}. Skipping OpenAI generation.`);
+    } else {
+        console.log(`Generating AI productivity log for period ending at ${logHourEnd}:00...`);
 
-    // Upsert Hourly Productivity Log
-    const { error: logErr } = await supabase.from('hourly_productivity_logs').upsert({
-        user_id: userId,
-        shift_id: shift.id,
-        date: todayDate,
-        hour_start: `${logHourStart}:00`,
-        hour_end: `${logHourEnd}:00`,
-        work_description: aiResult.work_description,
-        productivity_score: aiResult.productivity_score,
-        productivity_level: aiResult.productivity_level.toLowerCase(),
-        is_break: false,
-        is_overtime: logHourStart >= 18,
-        tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 3).join(' ')]
-    }, { onConflict: 'user_id, shift_id, hour_start' });
+        // GPT: Generate Productivity Details
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a professional employee. You are reporting what you DID in the last 60 minutes." },
+                {
+                    role: "user", content: `Daily Goal: "${dailyGoal}". 
+            Reporting for Hour #${taskNumber} (Time: ${logHourStart}:00 to ${logHourEnd}:00).
+             and its should be 20 words max
+            Provide a specific, result-oriented description of what was accomplished in this EXACT hour.
+            Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low"}` }
+            ],
+            response_format: { type: "json_object" }
+        });
 
-    if (logErr) throw logErr;
-    console.log(`✅ Successfully Logged Hour #${taskNumber}!`);
+        const aiResult = JSON.parse(response.choices[0].message.content);
+        console.log("AI Generated Log:", aiResult);
+
+        // Upsert Hourly Productivity Log
+        const { error: logErr } = await supabase.from('hourly_productivity_logs').upsert({
+            user_id: userId,
+            shift_id: shift.id,
+            date: todayDate,
+            hour_start: `${logHourStart}:00`,
+            hour_end: `${logHourEnd}:00`,
+            work_description: aiResult.work_description,
+            productivity_score: aiResult.productivity_score,
+            productivity_level: aiResult.productivity_level.toLowerCase(),
+            is_break: false,
+            is_overtime: logHourStart >= 18,
+            tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 3).join(' ')]
+        }, { onConflict: 'user_id, shift_id, hour_start' });
+
+        if (logErr) throw logErr;
+        console.log(`✅ Successfully Logged Hour #${taskNumber}!`);
+    }
 
     // 6. Handle Clock Out (7:00 PM IST)
     if (currentHour === 19) {
