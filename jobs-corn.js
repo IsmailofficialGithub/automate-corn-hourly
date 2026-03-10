@@ -9,9 +9,12 @@ import OpenAI from 'openai';
 const SUPABASE_URL = "https://lyltstsxwtlfgihdbmux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1"
+});
 
-const DAILY_GOAL = "Changing website content , images , and adding new pages,adding link proper working , meeting , changes in pixoranest.in dashboard , "
+const DAILY_GOAL = "Changing website content , images , and adding new pages,adding link proper working , meeting , changes in pixoranest.in dashboard , changes in database of outbound for call logs and leads section , changes in admin panel of pixoranest.in"
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -107,7 +110,7 @@ async function run() {
 
         // GPT: Generate Productivity Details
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "llama-3.3-70b-versatile",
             messages: [
                 { role: "system", content: "You are a professional employee. You are reporting what you DID in the last 60 minutes." },
                 {

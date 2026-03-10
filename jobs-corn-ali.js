@@ -9,9 +9,12 @@ import OpenAI from 'openai';
 const SUPABASE_URL = "https://lyltstsxwtlfgihdbmux.supabase.co";
 const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1"
+});
 
-const DAILY_GOAL = "1. Built the n8n webhook to receive client topic input from form or WhatsApp message. 2. Connected the OpenAI GPT node to generate caption, description, and hashtags based on the client topic. 3. Added language and tone settings such as formal, casual, and promotional. 4. Tested the workflow with five different topic inputs to evaluate AI output quality. 5. Fixed and improved the AI prompt based on test results. 6. Documented the complete input-to-output flow clearly."
+const DAILY_GOAL = "1. Built the n8n webhook to receive client topic input from form or WhatsApp message. 2. Connected the OpenAI GPT node to generate caption, description, and hashtags based on the client topic. , helping ismail in admin panel and database whatsapp automation schema flow chart and chnages in inbound automation."
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -107,7 +110,7 @@ async function run() {
 
         // GPT: Generate Productivity Details
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "llama-3.3-70b-versatile",
             messages: [
                 { role: "system", content: "You are a professional employee. You are reporting what you DID in the last 60 minutes." },
                 {
