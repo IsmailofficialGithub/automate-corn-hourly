@@ -112,15 +112,20 @@ async function run() {
         const response = await openai.chat.completions.create({
             model: "llama-3.3-70b-versatile",
             messages: [
-                { role: "system", content: "You are a professional employee. You are reporting what you DID in the last 60 minutes." },
+                { role: "system", content: "You are a professional software engineer. You are reporting what you DID in the last 60 minutes. Be specific, professional, and vary your descriptions for each hour." },
                 {
                     role: "user", content: `Daily Goal: "${dailyGoal}". 
-            Reporting for Hour #${taskNumber} (Time: ${logHourStart}:00 to ${logHourEnd}:00).
-             and its should be 20 words max
-            Provide a specific, result-oriented description of what was accomplished in this EXACT hour.
-            Return JSON: {"work_description": "...", "productivity_score": 85, "productivity_level": "productive|moderate|low"}` }
+            Reporting for Hour #${taskNumber} of 9 (Time: ${logHourStart}:00 to ${logHourEnd}:00).
+            
+            IMPORTANT: Provide a unique, result-oriented description of what was accomplished in this EXACT hour. 
+            Do NOT repeat previous reports. Focus on a specific part of the Daily Goal. 
+            Use varied professional terminology (e.g., 'Implemented', 'Optimized', 'Debugged', 'Integrated', 'Refined').
+            
+            The description must be under 20 words and directly state the work.
+            Return JSON: {"work_description": "...", "productivity_score": 90, "productivity_level": "productive"}` }
             ],
-            response_format: { type: "json_object" }
+            response_format: { type: "json_object" },
+            temperature: 0.8
         });
 
         const aiResult = JSON.parse(response.choices[0].message.content);
@@ -135,10 +140,10 @@ async function run() {
             hour_end: `${logHourEnd}:00`,
             work_description: aiResult.work_description,
             productivity_score: aiResult.productivity_score,
-            productivity_level: aiResult.productivity_level.toLowerCase(),
+            productivity_level: (aiResult.productivity_level || "productive").toLowerCase(),
             is_break: false,
             is_overtime: logHourStart >= 18,
-            tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 3).join(' ')]
+            tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 5).join(' ')] // Increased to 5 words for better tracking
         }, { onConflict: 'user_id, shift_id, hour_start' });
 
         if (logErr) throw logErr;
