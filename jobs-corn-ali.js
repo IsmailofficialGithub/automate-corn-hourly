@@ -14,7 +14,7 @@ const openai = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1"
 });
 
-const DAILY_GOAL = "1. Built the n8n webhook to receive client topic input from form or WhatsApp message. 2. Connected the OpenAI GPT node to generate caption, description, and hashtags based on the client topic. , helping ismail in admin panel and database whatsapp automation schema flow chart and chnages in inbound automation."
+const DAILY_GOAL = "1. Built the n8n webhook to receive client topic input from form or WhatsApp message. 2. Connected the OpenAI GPT node to generate caption, description, and hashtags based on the client topic. , working on gemini api integratiion ,content generation [this task is big so divide in 3 hours atleast]."
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));

@@ -14,7 +14,7 @@ const openai = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1"
 });
 
-const DAILY_GOAL = "Changing website content , images , and adding new pages,adding link proper working , meeting , changes in pixoranest.in dashboard , changes in database of outbound for call logs and leads section , changes in admin panel of pixoranest.in"
+const DAILY_GOAL = "working on landing page wellcome message when enter in website , whatsapp redirection in book button click,save form data in db,remove some services, working on dashboard theme , working on dashboard admin side, working on dasboard client side and admin side , study and research on new tasks "
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
