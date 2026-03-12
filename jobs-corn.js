@@ -106,7 +106,11 @@ async function run() {
     if (existingLog) {
         console.log(`✅ Log already exists for Hour #${taskNumber}. Skipping OpenAI generation.`);
     } else {
-        console.log(`Generating AI productivity log for period ending at ${logHourEnd}:00...`);
+        const goalParts = dailyGoal.split(/[,.]/).map(g => g.trim()).filter(g => g.length > 5);
+        const taskIndex = (taskNumber - 1) % (goalParts.length || 1);
+        const focusTask = goalParts[taskIndex] || dailyGoal;
+
+        console.log(`Generating AI productivity log for period ending at ${logHourEnd}:00 (Focus: ${focusTask})...`);
 
         // GPT: Generate Productivity Details
         const response = await openai.chat.completions.create({
@@ -114,11 +118,12 @@ async function run() {
             messages: [
                 { role: "system", content: "You are a professional software engineer. You are reporting what you DID in the last 60 minutes. Be specific, professional, and vary your descriptions for each hour." },
                 {
-                    role: "user", content: `Daily Goal: "${dailyGoal}". 
+                    role: "user", content: `Context: You are working on this specifically: "${focusTask}".
+            Overall Daily Goal: "${dailyGoal}". 
             Reporting for Hour #${taskNumber} of 9 (Time: ${logHourStart}:00 to ${logHourEnd}:00).
             
-            IMPORTANT: Provide a unique, result-oriented description of what was accomplished in this EXACT hour. 
-            Do NOT repeat previous reports. Focus on a specific part of the Daily Goal. 
+            IMPORTANT: Provide a unique, result-oriented description of what was accomplished in this EXACT hour related to the focus task. 
+            Do NOT repeat previous reports. Focus on a specific sub-component or progress milestone. 
             Use varied professional terminology (e.g., 'Implemented', 'Optimized', 'Debugged', 'Integrated', 'Refined').
             
             The description must be under 20 words and directly state the work.
