@@ -14,7 +14,17 @@ const openai = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1"
 });
 
-const DAILY_GOAL = "working on landing page wellcome message when enter in website , whatsapp redirection in book button click,save form data in db,remove some services, working on dashboard theme , working on dashboard admin side, working on dasboard client side and admin side , study and research on new tasks "
+const DAILY_GOAL = `
+Website live chat widget - A small chat box on a website (like Intercom / Crisp) where visitors can send messages from the site.
+
+Chat inbox inside dashboard - Agents can see and manage all incoming messages directly inside the platform dashboard.
+
+AI Auto-reply - AI automatically responds to visitors and answers common questions.
+
+Agent assignment - Chats can be assigned to a specific support agent for handling.
+
+Chat history - All previous conversations are saved and can be viewed anytime.
+`
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));

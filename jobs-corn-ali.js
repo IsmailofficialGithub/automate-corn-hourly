@@ -14,7 +14,7 @@ const openai = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1"
 });
 
-const DAILY_GOAL = "1. Built the n8n webhook to receive client topic input from form or WhatsApp message. 2. Connected the OpenAI GPT node to generate caption, description, and hashtags based on the client topic. , working on gemini api integratiion ,content generation [this task is big so divide in 3 hours atleast]."
+const DAILY_GOAL = "Today I designed the database schema and created the system blueprint for the social media automation platform. The structure includes planning for automation workflows, account management, scheduling system, and message handling. This blueprint will guide the development of the backend, APIs, and automation logic."
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -148,7 +148,7 @@ async function run() {
             productivity_level: (aiResult.productivity_level || "productive").toLowerCase(),
             is_break: false,
             is_overtime: logHourStart >= 18,
-            tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 5).join(' ')] 
+            tasks_worked_on: [aiResult.work_description.split(' ').slice(0, 5).join(' ')]
         }, { onConflict: 'user_id, shift_id, hour_start' });
 
         if (logErr) throw logErr;
