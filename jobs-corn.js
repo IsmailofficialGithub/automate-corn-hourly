@@ -170,7 +170,10 @@ async function run() {
         console.log("Clocking Out...");
         const { error: updateErr } = await supabase
             .from('shifts')
-            .update({ status: 'completed' })
+            .update({ 
+                status: 'completed',
+                actual_end: new Date().toISOString()
+            })
             .eq('id', shift.id);
 
         if (updateErr) throw updateErr;
