@@ -2,9 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = "https://lyltstsxwtlfgihdbmux.supabase.co";
-// Using the key from .env if possible, otherwise I'll need to ask or find it.
-// The .env had VITE_SUPABASE_PUBLISHABLE_KEY.
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5bHRzdHN4d3RsZmdpaGRibXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjI1MjgsImV4cCI6MjA4NjYzODUyOH0.kaw8n8BoeSQH2Os0PvEJRWO2rMd8M90YSVkpfVx0Rp0";
+const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
