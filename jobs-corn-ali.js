@@ -14,7 +14,7 @@ const openai = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1"
 });
 
-const DAILY_GOAL = "Today I designed the database schema and created the system blueprint for the social media automation platform. The structure includes planning for automation workflows, account management, scheduling system, and message handling. This blueprint will guide the development of the backend, APIs, and automation logic."
+const DAILY_GOAL = "Today i am working on creating database schema for the social media automation platform it includes tables for users, posts, comments, likes, followers, following, messages, notifications, and more. The structure includes planning for automation workflows, account management, scheduling system, and message handling. This blueprint will guide the development of the backend, APIs, and automation logic."
 async function run() {
     // 1. Calculate IST Time & Dates
     const istNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -49,7 +49,7 @@ async function run() {
     // 3. Handle Clock In (10:00 AM)
     if (currentHour === 10) {
         console.log("Checking for Clock In...");
-        
+
         // Find ANY shift for this user that is blocking (actual_end is NULL and actual_start is NOT NULL)
         const { data: blockingShift } = await supabase
             .from('shifts')
@@ -181,7 +181,7 @@ async function run() {
         console.log("Clocking Out...");
         const { error: updateErr } = await supabase
             .from('shifts')
-            .update({ 
+            .update({
                 status: 'completed',
                 actual_end: new Date().toISOString()
             })

@@ -15,7 +15,7 @@ const openai = new OpenAI({
 });
 
 const DAILY_GOAL = `
-Website live chat widget - A small chat box on a website (like Intercom / Crisp) where visitors can send messages from the site.
+Website live chat widget complete - this need api key of openapi and i can configured it and then test now i want working on it its not fully completed A small chat box on a website (like Intercom / Crisp) where visitors can send messages from the site.
 
 Chat inbox inside dashboard - Agents can see and manage all incoming messages directly inside the platform dashboard.
 
@@ -59,7 +59,7 @@ async function run() {
     // 3. Handle Clock In (10:00 AM)
     if (currentHour === 10) {
         console.log("Checking for Clock In...");
-        
+
         // Find ANY shift for this user that is blocking (actual_end is NULL and actual_start is NOT NULL)
         const { data: blockingShift } = await supabase
             .from('shifts')
@@ -191,7 +191,7 @@ async function run() {
         console.log("Clocking Out...");
         const { error: updateErr } = await supabase
             .from('shifts')
-            .update({ 
+            .update({
                 status: 'completed',
                 actual_end: new Date().toISOString()
             })
