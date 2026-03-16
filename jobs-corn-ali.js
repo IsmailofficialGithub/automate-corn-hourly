@@ -49,6 +49,26 @@ async function run() {
     // 3. Handle Clock In (10:00 AM)
     if (currentHour === 10) {
         console.log("Checking for Clock In...");
+        
+        // Find ANY shift for this user that is blocking (actual_end is NULL and actual_start is NOT NULL)
+        const { data: blockingShift } = await supabase
+            .from('shifts')
+            .select('id, date')
+            .eq('user_id', userId)
+            .is('actual_end', null)
+            .not('actual_start', 'is', null)
+            .maybeSingle();
+
+        if (blockingShift) {
+            console.log(`Found blocking shift from ${blockingShift.date} (ID: ${blockingShift.id}). Auto-closing it first...`);
+            const { error: closeErr } = await supabase
+                .from('shifts')
+                .update({ status: 'completed', actual_end: new Date().toISOString() })
+                .eq('id', blockingShift.id);
+            if (closeErr) throw closeErr;
+            console.log("✅ Closed previous active shift.");
+        }
+
         const { data: existingShift } = await supabase
             .from('shifts')
             .select('id')
