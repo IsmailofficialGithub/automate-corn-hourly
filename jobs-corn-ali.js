@@ -80,7 +80,8 @@ async function run() {
             const { error: insertErr } = await supabase.from('shifts').insert({
                 user_id: userId,
                 date: todayDate,
-                status: 'active'
+                status: 'active',
+                actual_start: new Date().toISOString()
             });
             if (insertErr) throw insertErr;
             console.log("✅ Successfully Clocked In at 10:00 AM IST!");
