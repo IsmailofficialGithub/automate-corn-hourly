@@ -63,7 +63,7 @@ async function run() {
         // Find ANY shift for this user that is blocking (actual_end is NULL and actual_start is NOT NULL)
         const { data: blockingShift } = await supabase
             .from('shifts')
-            .select('id, date')
+            .select('id, date, actual_start')
             .eq('user_id', userId)
             .is('actual_end', null)
             .not('actual_start', 'is', null)
@@ -71,12 +71,36 @@ async function run() {
 
         if (blockingShift) {
             console.log(`Found blocking shift from ${blockingShift.date} (ID: ${blockingShift.id}). Auto-closing it first...`);
+            const actualEnd = new Date(blockingShift.date + 'T19:00:00+05:30');
             const { error: closeErr } = await supabase
                 .from('shifts')
-                .update({ status: 'completed', actual_end: new Date().toISOString() })
+                .update({ 
+                    status: 'completed', 
+                    actual_end: actualEnd.toISOString(),
+                    auto_closed: true,
+                    auto_close_note: 'Auto-closed by morning job because user forgot to checkout'
+                })
                 .eq('id', blockingShift.id);
+            
             if (closeErr) throw closeErr;
-            console.log("✅ Closed previous active shift.");
+
+            // Also update attendance for the forgotten shift
+            const actualStart = new Date(blockingShift.actual_start);
+            const workHours = (actualEnd - actualStart) / (1000 * 60 * 60);
+            const overtimeHours = Math.max(0, workHours - 9);
+
+            await supabase
+                .from('attendance')
+                .upsert({
+                    user_id: userId,
+                    shift_id: blockingShift.id,
+                    date: blockingShift.date,
+                    status: 'present',
+                    total_hours: parseFloat(workHours.toFixed(2)),
+                    overtime_hours: parseFloat(overtimeHours.toFixed(2))
+                }, { onConflict: 'user_id, date' });
+
+            console.log(`✅ Auto-closed previous shift ${blockingShift.id} and updated attendance.`);
         }
 
         const { data: existingShift } = await supabase
@@ -106,7 +130,7 @@ async function run() {
     // 4. Find Active Shift for Reporting & Clock Out
     const { data: shift, error: shiftErr } = await supabase
         .from('shifts')
-        .select('id')
+        .select('id, actual_start, total_break_minutes')
         .eq('user_id', userId)
         .eq('date', todayDate)
         .eq('status', 'active')
@@ -189,16 +213,38 @@ async function run() {
     // 6. Handle Clock Out (7:00 PM IST)
     if (currentHour === 19) {
         console.log("Clocking Out...");
+
+        const actualStart = new Date(shift.actual_start);
+        const actualEnd = new Date();
+        const workHours = (actualEnd - actualStart) / (1000 * 60 * 60);
+        const overtimeHours = Math.max(0, workHours - 9); // After 9 hours (10 AM to 7 PM)
+
         const { error: updateErr } = await supabase
             .from('shifts')
             .update({
                 status: 'completed',
-                actual_end: new Date().toISOString()
+                actual_end: actualEnd.toISOString(),
+                overtime_minutes: Math.round(overtimeHours * 60)
             })
             .eq('id', shift.id);
 
         if (updateErr) throw updateErr;
-        console.log("✅ Successfully Clocked Out at 7:00 PM IST!");
+
+        // Upsert into attendance table
+        const { error: attErr } = await supabase
+            .from('attendance')
+            .upsert({
+                user_id: userId,
+                shift_id: shift.id,
+                date: todayDate,
+                status: 'present',
+                total_hours: parseFloat(workHours.toFixed(2)),
+                overtime_hours: parseFloat(overtimeHours.toFixed(2))
+            }, { onConflict: 'user_id, date' });
+
+        if (attErr) console.error("Attendance Log Error:", attErr.message);
+        
+        console.log("✅ Successfully Clocked Out and updated Attendance at 7:00 PM IST!");
     }
 }
 
